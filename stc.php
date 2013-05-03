@@ -42,19 +42,35 @@ function convert_dir($dir, $echo = false) {
 	return $converted_files;
 }
 
+function add_space(&$content) {
+	// With long tags it's not possible to have
+	// tags starting like <?phpecho "ok", so we 
+	// need a space with the <?php tag.
+	if (!preg_match('/^[\s\n]/', $content)) {
+		$content = ' ' . $content;
+	}
+}
+
 function convert_file($file) {
 	$changed = false;
 	$cont = file_get_contents($file);
 	
 	$newcont = "";
+	$phpstart = false;
 	foreach (token_get_all($cont) as $token) {
 		if(is_array($token)) {
 			@list($index, $code, $line) = $token;
 			if ($index === T_OPEN_TAG) {
 				if (strpos($code, '<?php') !== 0) {
 					$changed = true;
-					$newcont .= '<?php' . substr($code, 2);
+					$after = substr($code, 2);
+					$newcont .= '<?php' . $after;
+					$phpstart = true;
 				} else {
+					if ($phpstart) {
+						add_space($code);
+						$phpstart = false;
+					}
 					$newcont .= $code;
 				}
 			} else if ($index === T_OPEN_TAG_WITH_ECHO) {
@@ -64,9 +80,17 @@ function convert_file($file) {
 				}
 				$changed = true;
 			} else {
+				if ($phpstart) {
+					add_space($code);
+					$phpstart = false;
+				}
 				$newcont .= $code;
 			}
 		} else {
+			if ($phpstart) {
+				add_space($token);
+				$phpstart = false;
+			}
 			$newcont .= $token;
 		}
 	}

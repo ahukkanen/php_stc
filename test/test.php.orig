@@ -1,0 +1,24 @@
+<? 
+echo "OK";
+?>
+<?/**
+ Change this file into test.php in order to test the script
+*/?>
+<?
+echo "testing"
+?>
+<br>
+<?="testing 2"?>
+<p>
+<?if(true):?>
+	<?echo "TEST"?>
+<?endif?>
+</p>
+<div>
+<?foreach(array(1,2,3) as $num):?>
+	<?="testing: $num"?>
+<?endforeach?>
+</div>
+<p><? echo "this starts with space" ?></p>
+<p><?= "starting with space" ?></p>
+<??>
